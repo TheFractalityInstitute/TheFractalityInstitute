@@ -1,0 +1,314 @@
+# The Fractality Institute .gitignore
+# Protecting privacy and keeping the repository clean
+
+#######################
+# Sensitive Data
+#######################
+# NEVER commit EEG data with PII
+*.eeg
+*.edf
+*.raw
+*_personal.csv
+*_identified.json
+/data/personal/
+/data/identified/
+/participants/
+
+# Consent forms and ethics
+/consent_forms/
+/ethics_approval/
+*.consent
+*_signed.pdf
+
+# Credentials and secrets
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+credentials/
+config/production.json
+
+#######################
+# Python
+#######################
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+fractality-env/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+#######################
+# Node.js / JavaScript
+#######################
+# Dependencies
+node_modules/
+jspm_packages/
+
+# Build outputs
+dist/
+build/
+*.bundle.js
+*.bundle.map
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Yarn
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+#######################
+# IDEs and Editors
+#######################
+# VS Code
+.vscode/
+*.code-workspace
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+#######################
+# Operating System
+#######################
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+.directory
+.Trash-*
+
+#######################
+# Research Specific
+#######################
+# Large datasets (use Git LFS instead)
+*.h5
+*.hdf5
+*.mat
+*.npy
+*.npz
+datasets/
+
+# Analysis outputs
+/results/personal/
+/results/preliminary/
+/figures/draft/
+*.tmp
+
+# Pre-registration drafts
+/pre-registration/drafts/
+*_draft.md
+
+# Presentation materials with unpublished results
+/presentations/unpublished/
+/talks/confidential/
+
+#######################
+# Documentation
+#######################
+# Sphinx documentation
+docs/_build/
+docs/_static/
+docs/_templates/
+
+# MkDocs
+site/
+
+#######################
+# Backups and Temp
+#######################
+*.bak
+*.backup
+*.tmp
+*.temp
+*.old
+*.orig
+.backup/
+backups/
+tmp/
+temp/
+
+#######################
+# Custom Fractality
+#######################
+# Local configuration
+config/local.json
+settings.local.yml
+
+# Development databases
+*.db
+*.sqlite
+*.sqlite3
+/db/development/
+
+# Session data
+sessions/
+*.session
+
+# Upload directories during development
+uploads/
+/tmp_uploads/
+
+# Generated visualization caches
+.chart_cache/
+.plot_cache/
+
+# Analysis checkpoints
+checkpoints/
+*.checkpoint
+
+# Model files (use Git LFS)
+*.pkl
+*.joblib
+*.sav
+models/
+
+# Discord bot tokens
+discord_token.txt
+bot_config.json
+
+#######################
+# Security
+#######################
+# Audit logs (contain sensitive info)
+audit.log
+security.log
+/logs/audit/
+
+# Penetration testing results
+/security/pentest/
+*.pentest
+
+# SSL certificates (except examples)
+*.crt
+*.cer
+!example.crt
+
+#######################
+# Exceptions
+#######################
+# Keep these files
+!.gitignore
+!.gitkeep
+!requirements*.txt
+!package*.json
+!*/examples/**
+!*/templates/**
+!*/test_data/**
+
+# But still ignore sensitive data in examples
+*/examples/**/*_personal*
+*/test_data/**/*_real*
