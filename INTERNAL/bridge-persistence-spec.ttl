@@ -1,0 +1,6 @@
+@prefix : <http://example.org/persistence#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+:BridgeField a owl:Class ;
+    :hasMemoryDuration "PT10M"^^xsd:duration ;
+    :interferes_with :ResonanceField .

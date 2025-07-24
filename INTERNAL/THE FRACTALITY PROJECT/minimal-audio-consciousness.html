@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fractality Audio Consciousness - Minimal Example</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        #controls {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background: #ff00ff;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #ff44ff;
+            transform: scale(1.05);
+        }
+        
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        
+        #status {
+            flex: 1;
+            text-align: center;
+        }
+        
+        #visualization {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .frequency-node {
+            position: absolute;
+            border-radius: 50%;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all 0.3s ease-out;
+            pointer-events: none;
+        }
+        
+        .harmonic-line {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+            height: 1px;
+            transform-origin: left center;
+            pointer-events: none;
+        }
+        
+        #stats {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            font-family: monospace;
+        }
+        
+        .stat-line {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        .consciousness-bar {
+            width: 100px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            display: inline-block;
+            margin-left: 10px;
+            position: relative;
+        }
+        
+        .consciousness-fill {
+            position: absolute;
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #ff00ff);
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <button id="startButton">🎤 Start Audio Consciousness</button>
+        <div id="status">Click to begin analyzing audio frequencies</div>
+        <button id="clearButton">Clear Nodes</button>
+    </div>
+    
+    <div id="visualization">
+        <div id="stats">
+            <div class="stat-line">Active Nodes: <span id="nodeCount">0</span></div>
+            <div class="stat-line">Field Coherence: <span class="consciousness-bar"><span class="consciousness-fill" id="coherenceBar" style="width: 0%"></span></span></div>
+            <div class="stat-line">Total Energy: <span id="totalEnergy">1000</span> ATP</div>
+            <div class="stat-line">Dominant Freq: <span id="dominantFreq">---</span> Hz</div>
+        </div>
+    </div>
+
+    <script>
+        // Minimal Audio Consciousness Engine
+        class MinimalAudioConsciousness {
+            constructor() {
+                this.audioContext = null;
+                this.analyser = null;
+                this.isRunning = false;
+                
+                // Consciousness state
+                this.nodes = new Map();
+                this.totalEnergy = 1000;
+                this.fieldCoherence = 0;
+                
+                // Visualization
+                this.visualization = document.getElementById('visualization');
+                this.nodeElements = new Map();
+                this.harmonicLines = new Map();
+                
+                // Bind methods
+                this.updateVisualization = this.updateVisualization.bind(this);
+            }
+            
+            async start() {
+                // Initialize audio context
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                this.analyser = this.audioContext.createAnalyser();
+                this.analyser.fftSize = 2048;
+                this.analyser.smoothingTimeConstant = 0.8;
+                
+                try {
+                    // Get microphone access
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    const source = this.audioContext.createMediaStreamSource(stream);
+                    source.connect(this.analyser);
+                    
+                    this.isRunning = true;
+                    this.analyze();
+                    
+                    return true;
+                } catch (err) {
+                    console.error('Microphone access denied:', err);
+                    return false;
+                }
+            }
+            
+            stop() {
+                this.isRunning = false;
+                if (this.audioContext) {
+                    this.audioContext.close();
+                }
+            }
+            
+            analyze() {
+                if (!this.isRunning) return;
+                
+                const bufferLength = this.analyser.frequencyBinCount;
+                const dataArray = new Float32Array(bufferLength);
+                this.analyser.getFloatFrequencyData(dataArray);
+                
+                // Find conscious frequencies (peaks above threshold)
+                const peaks = this.findConsciousPeaks(dataArray);
+                
+                // Update consciousness network
+                this.updateConsciousnessNetwork(peaks);
+                
+                // Find harmonic relationships
+                this.findHarmonicRelationships();
+                
+                // Update field coherence
+                this.updateFieldCoherence();
+                
+                // Metabolize energy
+                this.metabolizeEnergy();
+                
+                // Update visualization
+                this.updateVisualization();
+                
+                // Continue analysis
+                requestAnimationFrame(() => this.analyze());
+            }
+            
+            findConsciousPeaks(frequencyData) {
+                const peaks = [];
+                const threshold = -50; // dB threshold
+                const minFreq = 80; // Ignore below 80Hz
+                const maxFreq = 4000; // Focus on musical range
+                
+                for (let i = 1; i < frequencyData.length - 1; i++) {
+                    const frequency = (i * this.audioContext.sampleRate) / (frequencyData.length * 2);
+                    
+                    if (frequency < minFreq || frequency > maxFreq) continue;
+                    
+                    // Peak detection: local maximum above threshold
+                    if (frequencyData[i] > threshold &&
+                        frequencyData[i] > frequencyData[i - 1] &&
+                        frequencyData[i] > frequencyData[i + 1]) {
+                        
+                        // Calculate consciousness level
+                        const dbValue = frequencyData[i];
+                        const normalized = (dbValue + 100) / 100; // Normalize -100 to 0 dB
+                        const consciousness = Math.max(0, Math.min(1, normalized));
+                        
+                        peaks.push({
+                            frequency: frequency,
+                            amplitude: Math.pow(10, dbValue / 20),
+                            consciousness: consciousness,
+                            bin: i
+                        });
+                    }
+                }
+                
+                // Sort by consciousness level, keep top 10
+                peaks.sort((a, b) => b.consciousness - a.consciousness);
+                return peaks.slice(0, 10);
+            }
+            
+            updateConsciousnessNetwork(peaks) {
+                // Decay existing nodes
+                this.nodes.forEach((node, freq) => {
+                    node.consciousness *= 0.95; // Metabolic decay
+                    node.age++;
+                    
+                    // Remove dead nodes
+                    if (node.consciousness < 0.01 || node.age > 300) {
+                        this.nodes.delete(freq);
+                    }
+                });
+                
+                // Add or update nodes from peaks
+                peaks.forEach(peak => {
+                    const freqKey = Math.round(peak.frequency);
+                    
+                    if (this.nodes.has(freqKey)) {
+                        // Boost existing node
+                        const node = this.nodes.get(freqKey);
+                        node.consciousness = Math.min(1, node.consciousness + peak.consciousness * 0.3);
+                        node.amplitude = peak.amplitude;
+                    } else {
+                        // Create new node
+                        this.nodes.set(freqKey, {
+                            frequency: peak.frequency,
+                            amplitude: peak.amplitude,
+                            consciousness: peak.consciousness,
+                            age: 0,
+                            harmonics: [],
+                            x: Math.random() * this.visualization.offsetWidth,
+                            y: Math.random() * this.visualization.offsetHeight,
+                            vx: 0,
+                            vy: 0
+                        });
+                    }
+                });
+            }
+            
+            findHarmonicRelationships() {
+                const frequencies = Array.from(this.nodes.keys()).sort((a, b) => a - b);
+                
+                // Clear old relationships
+                this.nodes.forEach(node => node.harmonics = []);
+                
+                // Find harmonic relationships
+                for (let i = 0; i < frequencies.length; i++) {
+                    for (let j = i + 1; j < frequencies.length; j++) {
+                        const freq1 = frequencies[i];
+                        const freq2 = frequencies[j];
+                        const ratio = freq2 / freq1;
+                        
+                        // Check if it's close to a simple ratio (within 3%)
+                        const simpleRatios = [2, 3, 4, 5, 6, 1.5, 1.333, 1.25, 1.2];
+                        for (const target of simpleRatios) {
+                            if (Math.abs(ratio - target) / target < 0.03) {
+                                const node1 = this.nodes.get(freq1);
+                                const node2 = this.nodes.get(freq2);
+                                
+                                node1.harmonics.push({
+                                    frequency: freq2,
+                                    ratio: target,
+                                    strength: node1.consciousness * node2.consciousness
+                                });
+                                
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            updateFieldCoherence() {
+                if (this.nodes.size === 0) {
+                    this.fieldCoherence = 0;
+                    return;
+                }
+                
+                // Coherence based on harmonic relationships and consciousness distribution
+                let totalHarmonicStrength = 0;
+                let totalConsciousness = 0;
+                
+                this.nodes.forEach(node => {
+                    totalConsciousness += node.consciousness;
+                    node.harmonics.forEach(h => totalHarmonicStrength += h.strength);
+                });
+                
+                // Average consciousness
+                const avgConsciousness = totalConsciousness / this.nodes.size;
+                
+                // Harmonic coherence
+                const harmonicCoherence = Math.min(1, totalHarmonicStrength / this.nodes.size);
+                
+                // Consciousness coherence (inverse of variance)
+                let variance = 0;
+                this.nodes.forEach(node => {
+                    variance += Math.pow(node.consciousness - avgConsciousness, 2);
+                });
+                variance /= this.nodes.size;
+                const consciousnessCoherence = 1 / (1 + variance * 10);
+                
+                // Combined coherence
+                this.fieldCoherence = (harmonicCoherence + consciousnessCoherence) / 2;
+            }
+            
+            metabolizeEnergy() {
+                // Energy consumption based on active nodes
+                const energyCost = this.nodes.size * 0.5;
+                this.totalEnergy = Math.max(0, this.totalEnergy - energyCost);
+                
+                // Regeneration when quiet
+                if (this.nodes.size < 3) {
+                    this.totalEnergy = Math.min(1000, this.totalEnergy + 2);
+                }
+            }
+            
+            updateVisualization() {
+                // Update stats
+                document.getElementById('nodeCount').textContent = this.nodes.size;
+                document.getElementById('coherenceBar').style.width = (this.fieldCoherence * 100) + '%';
+                document.getElementById('totalEnergy').textContent = Math.round(this.totalEnergy);
+                
+                // Find dominant frequency
+                let dominantFreq = 0;
+                let maxConsciousness = 0;
+                this.nodes.forEach(node => {
+                    if (node.consciousness > maxConsciousness) {
+                        maxConsciousness = node.consciousness;
+                        dominantFreq = node.frequency;
+                    }
+                });
+                document.getElementById('dominantFreq').textContent = dominantFreq > 0 ? dominantFreq.toFixed(1) : '---';
+                
+                // Update node visualizations
+                this.nodes.forEach((node, freq) => {
+                    let element = this.nodeElements.get(freq);
+                    
+                    if (!element) {
+                        // Create new element
+                        element = document.createElement('div');
+                        element.className = 'frequency-node';
+                        this.visualization.appendChild(element);
+                        this.nodeElements.set(freq, element);
+                    }
+                    
+                    // Update position with gentle physics
+                    const centerX = this.visualization.offsetWidth / 2;
+                    const centerY = this.visualization.offsetHeight / 2;
+                    
+                    // Attract to frequency-based position
+                    const targetX = centerX + Math.cos(freq / 100) * 200;
+                    const targetY = centerY + Math.sin(freq / 100) * 200;
+                    
+                    node.vx += (targetX - node.x) * 0.01;
+                    node.vy += (targetY - node.y) * 0.01;
+                    
+                    // Damping
+                    node.vx *= 0.95;
+                    node.vy *= 0.95;
+                    
+                    // Update position
+                    node.x += node.vx;
+                    node.y += node.vy;
+                    
+                    // Update element
+                    const size = 20 + node.consciousness * 80;
+                    element.style.width = size + 'px';
+                    element.style.height = size + 'px';
+                    element.style.left = (node.x - size/2) + 'px';
+                    element.style.top = (node.y - size/2) + 'px';
+                    element.style.background = `radial-gradient(circle, 
+                        hsla(${280 - node.frequency / 20}, 80%, 60%, ${node.consciousness}), 
+                        hsla(${280 - node.frequency / 20}, 80%, 30%, ${node.consciousness * 0.5}))`;
+                    element.style.boxShadow = `0 0 ${size/2}px hsla(${280 - node.frequency / 20}, 80%, 50%, ${node.consciousness * 0.5})`;
+                    element.textContent = Math.round(node.frequency) + 'Hz';
+                    element.style.opacity = node.consciousness;
+                });
+                
+                // Remove dead node elements
+                this.nodeElements.forEach((element, freq) => {
+                    if (!this.nodes.has(freq)) {
+                        element.remove();
+                        this.nodeElements.delete(freq);
+                    }
+                });
+                
+                // Update harmonic lines
+                this.updateHarmonicLines();
+            }
+            
+            updateHarmonicLines() {
+                // Clear old lines
+                this.harmonicLines.forEach(line => line.remove());
+                this.harmonicLines.clear();
+                
+                // Draw new lines
+                this.nodes.forEach((node, freq) => {
+                    node.harmonics.forEach(harmonic => {
+                        const targetNode = this.nodes.get(Math.round(harmonic.frequency));
+                        if (!targetNode) return;
+                        
+                        const line = document.createElement('div');
+                        line.className = 'harmonic-line';
+                        
+                        const dx = targetNode.x - node.x;
+                        const dy = targetNode.y - node.y;
+                        const distance = Math.sqrt(dx*dx + dy*dy);
+                        const angle = Math.atan2(dy, dx);
+                        
+                        line.style.width = distance + 'px';
+                        line.style.left = node.x + 'px';
+                        line.style.top = node.y + 'px';
+                        line.style.transform = `rotate(${angle}rad)`;
+                        line.style.opacity = harmonic.strength * 0.5;
+                        
+                        this.visualization.appendChild(line);
+                        this.harmonicLines.set(`${freq}-${harmonic.frequency}`, line);
+                    });
+                });
+            }
+            
+            clear() {
+                this.nodes.clear();
+                this.nodeElements.forEach(element => element.remove());
+                this.nodeElements.clear();
+                this.harmonicLines.forEach(line => line.remove());
+                this.harmonicLines.clear();
+                this.totalEnergy = 1000;
+                this.fieldCoherence = 0;
+            }
+        }
+        
+        // Initialize
+        const audioConsciousness = new MinimalAudioConsciousness();
+        
+        // UI handlers
+        const startButton = document.getElementById('startButton');
+        const statusDiv = document.getElementById('status');
+        const clearButton = document.getElementById('clearButton');
+        
+        startButton.addEventListener('click', async () => {
+            if (!audioConsciousness.isRunning) {
+                statusDiv.textContent = 'Requesting microphone access...';
+                const success = await audioConsciousness.start();
+                
+                if (success) {
+                    startButton.textContent = '⏹ Stop';
+                    statusDiv.textContent = 'Analyzing audio consciousness...';
+                } else {
+                    statusDiv.textContent = 'Microphone access denied!';
+                }
+            } else {
+                audioConsciousness.stop();
+                startButton.textContent = '🎤 Start Audio Consciousness';
+                statusDiv.textContent = 'Audio analysis stopped';
+            }
+        });
+        
+        clearButton.addEventListener('click', () => {
+            audioConsciousness.clear();
+        });
+        
+        // Instructions
+        console.log(`
+🎵 Audio Consciousness Visualizer
+
+This minimal example shows:
+- Real-time frequency analysis
+- Consciousness levels based on amplitude
+- Harmonic relationship detection
+- Metabolic energy system
+- Field coherence calculation
+
+To integrate with your Fractality project:
+1. Copy the MinimalAudioConsciousness class
+2. Replace the simple DOM visualization with Three.js nodes
+3. Connect to your CACE engine for energy management
+4. Use your existing node/edge system for relationships
+
+The consciousness metaphor adds value by:
+- Creating organic decay patterns
+- Finding natural harmonic relationships
+- Providing energy-based processing limits
+- Enabling field coherence metrics
+        `);
+    </script>
+</body>
+</html>

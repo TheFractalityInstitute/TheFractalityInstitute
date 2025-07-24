@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Fractality Bubble UI v4.2 - Final Polish</title>
+  
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./three.module.js"
+    }
+  }
+  </script>
+
+  <style>
+    body { margin: 0; overflow: hidden; background: #111; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    
+    #overlay {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      z-index: 10;
+      /* other styles remain the same */
+      background: rgba(20, 20, 30, 0.85); padding: 15px; border-radius: 12px; max-width: 320px; backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    /* --- THIS IS THE NEW, MORE ROBUST CSS FOR THE HUD --- */
+    #gui-container {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      z-index: 20; /* Keep it on top */
+    }
+    
+    #info { font-size: 15px; line-height: 1.6; min-height: 60px; }
+    canvas { display: block; position: fixed; z-index: 0; top: 0; left: 0; }
+    h3 { margin-top: 0; color: #6ae6ff; border-bottom: 1px solid rgba(100, 200, 255, 0.3); padding-bottom: 8px; }
+    .highlight { color: #ffd86e; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div id="overlay">
+    <h3>Fractal Node Information v4.2</h3>
+    <div id="info">⟡ Pinch to zoom, drag to explore.</div>
+  </div>
+
+  <div id="gui-container"></div>
+
+  <script src="./dat.gui.min.js"></script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from './OrbitControls.js';
+
+    // The JavaScript code is nearly identical to v4.1
+    // --- Basic Scene Setup ---
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    document.body.appendChild(renderer.domElement);
+    
+    // --- Controls and Camera Position ---
+    camera.position.set(0, 2, 15);
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    
+    // --- Lighting and Fog ---
+    scene.add(new THREE.AmbientLight(0x404040, 1.5));
+    const pointLight = new THREE.PointLight(0xffffff, 1.2);
+    pointLight.position.set(8, 10, 12);
+    scene.add(pointLight);
+    scene.fog = new THREE.FogExp2(0x0a1122, 0.03);
+
+    // --- Node Data ---
+    const fractalNodes = {
+      "GLYPH": { position: [3, 0.75, -1], radius: 1.5, color: "#20B2AA", info: "Symbolic representation of fractal language" },
+      "Oracle Node": { position: [3, 0.5, 1], radius: 1.5, color: "#F08080", info: "Predictive fractal analysis module" },
+      "Unity Field": { position: [0, 0, 3], radius: 7, color: "#E0FFFF", info: "Harmonic convergence field generator" },
+      "Trust Protocol": { position: [0, 2, 2], radius: 1.75, color: "#FAFAD2", info: "Decentralized consensus mechanism" },
+      "Shadow Integration": { position: [3, -1, 0.5], radius: 1.25, color: "#9370DB", info: "Chaos assimilation subsystem" }
+    };
+
+    // --- PERCEPTION TUNER SETUP ---
+    const params = {
+        opacity: 0.75,
+        metalness: 0.7,
+        roughness: 0.3,
+        // Set wireframe back to false by default
+        wireframe: false,
+    };
+    
+    // Tell dat.GUI to put itself inside our new container
+    const gui = new dat.GUI({ autoPlace: false });
+    document.getElementById('gui-container').appendChild(gui.domElement);
+    
+    gui.add(params, 'opacity', 0, 1).onChange(updateMaterials);
+    gui.add(params, 'metalness', 0, 1).onChange(updateMaterials);
+    gui.add(params, 'roughness', 0, 1).onChange(updateMaterials);
+    gui.add(params, 'wireframe').onChange(updateMaterials);
+
+
+    // --- Create Meshes ---
+    const nodeMeshes = [];
+    for (const [name, data] of Object.entries(fractalNodes)) {
+      const geometry = new THREE.SphereGeometry(data.radius, 36, 36);
+      const material = new THREE.MeshStandardMaterial({
+        color: data.color,
+        emissive: data.color,
+        emissiveIntensity: 0.05,
+        roughness: params.roughness,
+        metalness: params.metalness,
+        transparent: true,
+        opacity: params.opacity,
+        wireframe: params.wireframe
+      });
+      const node = new THREE.Mesh(geometry, material);
+      node.position.set(...data.position);
+      node.userData = { name, info: data.info };
+      scene.add(node);
+      nodeMeshes.push(node);
+    }
+    
+    function updateMaterials() {
+        nodeMeshes.forEach(mesh => {
+            mesh.material.opacity = params.opacity;
+            mesh.material.metalness = params.metalness;
+            mesh.material.roughness = params.roughness;
+            mesh.material.wireframe = params.wireframe;
+        });
+    }
+
+    // --- Animation and Interaction (no changes) ---
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update(); 
+      renderer.render(scene, camera);
+    }
+    
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    const infoPanel = document.getElementById('info');
+    let activeNode = null;
+    function handleInteraction(event) {
+        const x = event.touches ? event.touches[0].clientX : event.clientX;
+        const y = event.touches ? event.touches[0].clientY : event.clientY;
+        mouse.x = (x / window.innerWidth) * 2 - 1;
+        mouse.y = - (y / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(nodeMeshes);
+        if (intersects.length > 0) {
+            const selectedObject = intersects[0].object;
+            if (activeNode !== selectedObject) {
+                if (activeNode) activeNode.material.emissiveIntensity = 0.05;
+                activeNode = selectedObject;
+                activeNode.material.emissiveIntensity = 0.4;
+                const sanitize = str => { const temp = document.createElement('div'); temp.textContent = str; return temp.innerHTML; };
+                infoPanel.innerHTML = `<span class="highlight">${sanitize(activeNode.userData.name)}</span><br>${sanitize(activeNode.userData.info)}`;
+            }
+        }
+    }
+    window.addEventListener('click', handleInteraction);
+    window.addEventListener('touchend', handleInteraction);
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight, false);
+    });
+
+    animate();
+  </script>
+</body>
+</html>

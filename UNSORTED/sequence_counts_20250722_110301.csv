@@ -1,0 +1,11 @@
+,Kingdom,Category,Sequences
+0,ANIMALS,regeneration_champions,61
+1,ANIMALS,regeneration_limited,64
+2,ANIMALS,apoptosis,58
+3,PLANTS,regeneration,302
+4,PLANTS,programmed_cell_death,45
+5,FUNGI,regeneration,41
+6,FUNGI,cell_death,12
+7,BACTERIA,colony_regeneration,18
+8,BACTERIA,programmed_death,14
+9,PROTISTS,regeneration,2

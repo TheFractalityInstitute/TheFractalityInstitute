@@ -1,0 +1,294 @@
+@prefix : <http://fractality.org/ontology#> .
+@prefix fto: <http://fractality.org/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================
+# FRACTIVERSE ONTOLOGY - The Structure of All That Is
+# Version: 2.0.0
+# Part of the Fractal Trinity Ontology
+# ============================================
+
+# Ontology Declaration
+: a owl:Ontology ;
+    rdfs:label "Fractiverse Ontology"@en ;
+    rdfs:comment "The eternal structure of all possible concepts and their relations"@en ;
+    owl:versionInfo "2.0.0" ;
+    owl:imports <http://fractality.org/ontology/fractality.ttl> ;
+    owl:imports <http://fractality.org/ontology/resonance-field.ttl> .
+
+# ============================================
+# CORE CLASSES
+# ============================================
+
+# The Primordial Incompleteness
+:PrimordialIncompleteness a owl:Class ;
+    rdfs:label "Primordial Incompleteness"@en ;
+    rdfs:comment "The self-referential incompleteness that grounds all existence"@en ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            :IncompleteStructure
+            :SelfReferential
+            :Uncomplementable
+        )
+    ] .
+
+# The Fractiverse itself
+:Fractiverse a owl:Class ;
+    rdfs:label "Fractiverse"@en ;
+    rdfs:comment "The infinite lattice of all that exists in crystallized form"@en ;
+    rdfs:subClassOf :Structure ;
+    owl:hasKey (:rootNode :nodeSet :relationSet) .
+
+# Basic Structure
+:Structure a owl:Class ;
+    rdfs:label "Structure"@en ;
+    rdfs:comment "Any organized pattern of relationships"@en .
+
+:IncompleteStructure a owl:Class ;
+    rdfs:label "Incomplete Structure"@en ;
+    rdfs:subClassOf :Structure ;
+    owl:equivalentClass [
+        a owl:Restriction ;
+        owl:onProperty :hasIncompleteness ;
+        owl:someValuesFrom :Incompleteness
+    ] .
+
+# Node - the basic unit
+:Node a owl:Class ;
+    rdfs:label "Node"@en ;
+    rdfs:comment "A conceptual entity within the Fractiverse"@en ;
+    rdfs:subClassOf :IncompleteStructure .
+
+# Node Types (7-Tier System)
+:SourceNode a owl:Class ;
+    rdfs:subClassOf :Node ;
+    rdfs:label "Source Node"@en ;
+    rdfs:comment "Tier 0: The Fractiverse itself"@en ;
+    :tierLevel 0 .
+
+:ContainerNode a owl:Class ;
+    rdfs:subClassOf :Node ;
+    rdfs:label "Container Node"@en ;
+    rdfs:comment "Tier 0: Holds nested nodes"@en ;
+    :tierLevel 0 .
+
+:DualityNode a owl:Class ;
+    rdfs:subClassOf :Node ;
+    rdfs:label "Duality Node"@en ;
+    rdfs:comment "Tier 1: Essential binary pairs"@en ;
+    :tierLevel 1 .
+
+:PolarityNode a owl:Class ;
+    rdfs:subClassOf :Node ;
+    rdfs:label "Polarity Node"@en ;
+    rdfs:comment "Tier 1: Member of a duality"@en ;
+    :tierLevel 1 .
+
+:StateNode a owl:Class ;
+    rdfs:subClassOf :Node ;
+    rdfs:label "State Node"@en ;
+    rdfs:comment "Tier 2: Dynamic conditions"@en ;
+    :tierLevel 2 .
+
+:FrequencyNode a owl:Class ;
+    rdfs:subClassOf :Node ;
+    rdfs:label "Frequency Node"@en ;
+    rdfs:comment "Tier 2: Rhythmic layers"@en ;
+    :tierLevel 2 .
+
+:CognitiveNode a owl:Class ;
+    rdfs:subClassOf :Node ;
+    rdfs:label "Cognitive Node"@en ;
+    rdfs:comment "Tier 3: Reasoning nodes"@en ;
+    :tierLevel 3 .
+
+:SensorialNode a owl:Class ;
+    rdfs:subClassOf :Node ;
+    rdfs:label "Sensorial Node"@en ;
+    rdfs:comment "Tier 3: Perceptual inputs"@en ;
+    :tierLevel 3 .
+
+:GlyphNode a owl:Class ;
+    rdfs:subClassOf :Node ;
+    rdfs:label "Glyph Node"@en ;
+    rdfs:comment "Tier 6: Symbolic containers"@en ;
+    :tierLevel 6 .
+
+:CoreNode a owl:Class ;
+    rdfs:subClassOf :Node ;
+    rdfs:label "Core Node"@en ;
+    rdfs:comment "Tier 6: Foundational texts"@en ;
+    :tierLevel 6 .
+
+# Incompleteness Types
+:Incompleteness a owl:Class ;
+    rdfs:label "Incompleteness"@en ;
+    rdfs:comment "The property of referencing something not contained"@en .
+
+:StructuralIncompleteness a owl:Class ;
+    rdfs:subClassOf :Incompleteness ;
+    rdfs:comment "Missing structural elements"@en .
+
+:SemanticIncompleteness a owl:Class ;
+    rdfs:subClassOf :Incompleteness ;
+    rdfs:comment "Missing meaning or understanding"@en .
+
+:TemporalIncompleteness a owl:Class ;
+    rdfs:subClassOf :Incompleteness ;
+    rdfs:comment "Incomplete across time"@en .
+
+# Self-Reference
+:SelfReferential a owl:Class ;
+    rdfs:label "Self-Referential"@en ;
+    owl:equivalentClass [
+        a owl:Restriction ;
+        owl:onProperty :refersTo ;
+        owl:hasSelf true
+    ] .
+
+# ============================================
+# PROPERTIES
+# ============================================
+
+# Structural Properties
+:hasParent a owl:ObjectProperty ;
+    rdfs:domain :Node ;
+    rdfs:range :Node ;
+    owl:inverseOf :hasChild .
+
+:hasChild a owl:ObjectProperty ;
+    rdfs:domain :Node ;
+    rdfs:range :Node ;
+    owl:inverseOf :hasParent .
+
+:hasSibling a owl:ObjectProperty, owl:SymmetricProperty ;
+    rdfs:domain :Node ;
+    rdfs:range :Node .
+
+:belongsToDuality a owl:ObjectProperty ;
+    rdfs:domain :PolarityNode ;
+    rdfs:range :DualityNode .
+
+:hasPolarComplement a owl:ObjectProperty, owl:SymmetricProperty ;
+    rdfs:domain :PolarityNode ;
+    rdfs:range :PolarityNode .
+
+:contains a owl:ObjectProperty, owl:TransitiveProperty ;
+    rdfs:domain :ContainerNode ;
+    rdfs:range :Node .
+
+# Incompleteness Properties
+:hasIncompleteness a owl:ObjectProperty ;
+    rdfs:domain :Structure ;
+    rdfs:range :Incompleteness .
+
+:lacksElement a owl:ObjectProperty ;
+    rdfs:domain :IncompleteStructure ;
+    rdfs:range :Node .
+
+:seeksCompletion a owl:ObjectProperty ;
+    rdfs:domain :IncompleteStructure ;
+    rdfs:range :Structure .
+
+:refersTo a owl:ObjectProperty ;
+    rdfs:comment "What a structure references"@en .
+
+# Fractal Properties
+:structurallySimilarTo a owl:ObjectProperty, owl:SymmetricProperty ;
+    rdfs:domain :Structure ;
+    rdfs:range :Structure ;
+    rdfs:comment "Self-similar at different scales"@en .
+
+:hasDepth a owl:DatatypeProperty ;
+    rdfs:domain :Node ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Distance from root in hierarchy"@en .
+
+:tierLevel a owl:DatatypeProperty ;
+    rdfs:domain :Node ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Level in the 7-tier system"@en .
+
+# Semantic Properties
+:hasArchetype a owl:ObjectProperty ;
+    rdfs:domain :Node ;
+    rdfs:range :Node ;
+    rdfs:comment "Points to archetypal pattern"@en .
+
+:hasTag a owl:DatatypeProperty ;
+    rdfs:domain :Node ;
+    rdfs:range xsd:string .
+
+:semanticContent a owl:DatatypeProperty ;
+    rdfs:domain :Node ;
+    rdfs:range xsd:string .
+
+# Activation Properties
+:activationLevel a owl:DatatypeProperty ;
+    rdfs:domain :Node ;
+    rdfs:range xsd:float ;
+    rdfs:comment "0.0 = latent, 1.0 = fully activated"@en .
+
+:isLatent a owl:DatatypeProperty ;
+    rdfs:domain :Node ;
+    rdfs:range xsd:boolean ;
+    owl:equivalentClass [
+        a owl:Restriction ;
+        owl:onProperty :activationLevel ;
+        owl:hasValue "0.0"^^xsd:float
+    ] .
+
+# ============================================
+# AXIOMS
+# ============================================
+
+# Every node is incomplete
+:Node rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasIncompleteness ;
+    owl:someValuesFrom :Incompleteness
+] .
+
+# Self-similarity constraint
+:Fractiverse rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :contains ;
+    owl:allValuesFrom [
+        a owl:Restriction ;
+        owl:onProperty :structurallySimilarTo ;
+        owl:hasValue :Fractiverse
+    ]
+] .
+
+# Duality nodes always come in pairs
+:DualityNode rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :contains ;
+    owl:qualifiedCardinality "2"^^xsd:nonNegativeInteger ;
+    owl:onClass :PolarityNode
+] .
+
+# ============================================
+# INDIVIDUALS (Examples)
+# ============================================
+
+:TheFractiverse a :Fractiverse, :SourceNode ;
+    rdfs:label "The Fractiverse"@en ;
+    :hasDepth 0 ;
+    :activationLevel "1.0"^^xsd:float .
+
+:ExistenceNonExistence a :DualityNode ;
+    rdfs:label "Existence/Non-Existence Duality"@en ;
+    :contains :Existence, :NonExistence .
+
+:Existence a :PolarityNode ;
+    :hasPolarComplement :NonExistence ;
+    :belongsToDuality :ExistenceNonExistence .
+
+:NonExistence a :PolarityNode ;
+    :hasPolarComplement :Existence ;
+    :belongsToDuality :ExistenceNonExistence .

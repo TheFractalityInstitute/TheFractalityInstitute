@@ -1,0 +1,6 @@
+🎉 MAJOR DISCOVERIES:
+==================================================
+1. TGACGTCA is 3.93x enriched in regeneration!
+2. Total sequences analyzed: 617
+3. Regeneration uses AP-1 (stress response)
+4. Death uses DNA structure (CGCGCG)

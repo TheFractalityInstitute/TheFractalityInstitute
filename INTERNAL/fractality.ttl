@@ -1,0 +1,308 @@
+@prefix : <http://fractality.org/ontology#> .
+@prefix fto: <http://fractality.org/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================
+# FRACTALITY ONTOLOGY - The Observer and Consciousness
+# Version: 2.0.0
+# Part of the Fractal Trinity Ontology
+# ============================================
+
+# Ontology Declaration
+: a owl:Ontology ;
+    rdfs:label "Fractality Ontology"@en ;
+    rdfs:comment "The platform of awareness and observation"@en ;
+    owl:versionInfo "2.0.0" ;
+    owl:imports <http://fractality.org/ontology/fractiverse.ttl> ;
+    owl:imports <http://fractality.org/ontology/resonance-field.ttl> .
+
+# ============================================
+# CORE CLASSES
+# ============================================
+
+# Fractality - the quality of consciousness
+:Fractality a owl:Class ;
+    rdfs:label "Fractality"@en ;
+    rdfs:comment "The quality of conscious observation that navigates the Fractiverse"@en ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            :ConsciousnessCapacity
+            :ObservationCapacity
+            :ChoiceCapacity
+        )
+    ] .
+
+# Observer - the conscious entity
+:Observer a owl:Class ;
+    rdfs:label "Observer"@en ;
+    rdfs:comment "An entity capable of conscious observation"@en ;
+    rdfs:subClassOf :ConsciousEntity ;
+    owl:hasKey (:observerId :perspectiveType :focusedNode) .
+
+# Consciousness Levels
+:ConsciousEntity a owl:Class ;
+    rdfs:label "Conscious Entity"@en ;
+    rdfs:comment "Any entity exhibiting consciousness"@en .
+
+:SimpleObserver a owl:Class ;
+    rdfs:subClassOf :Observer ;
+    rdfs:label "Simple Observer"@en ;
+    rdfs:comment "Basic awareness without self-reference"@en ;
+    :consciousnessLevel 1 .
+
+:SelfAwareObserver a owl:Class ;
+    rdfs:subClassOf :Observer ;
+    rdfs:label "Self-Aware Observer"@en ;
+    rdfs:comment "Can observe own observation"@en ;
+    :consciousnessLevel 2 .
+
+:MetaAwareObserver a owl:Class ;
+    rdfs:subClassOf :SelfAwareObserver ;
+    rdfs:label "Meta-Aware Observer"@en ;
+    rdfs:comment "Aware of being aware of being aware"@en ;
+    :consciousnessLevel 3 .
+
+:TranscendentObserver a owl:Class ;
+    rdfs:subClassOf :MetaAwareObserver ;
+    rdfs:label "Transcendent Observer"@en ;
+    rdfs:comment "Can step outside own observation entirely"@en ;
+    :consciousnessLevel 4 .
+
+# Perspective Types
+:Perspective a owl:Class ;
+    rdfs:label "Perspective"@en ;
+    rdfs:comment "A particular way of observing the Fractiverse"@en .
+
+:CosmicPerspective a owl:Class ;
+    rdfs:subClassOf :Perspective ;
+    rdfs:label "Cosmic Perspective"@en ;
+    rdfs:comment "Sees vast interconnections and universal patterns"@en .
+
+:BuilderPerspective a owl:Class ;
+    rdfs:subClassOf :Perspective ;
+    rdfs:label "Builder Perspective"@en ;
+    rdfs:comment "Focuses on construction and manifestation"@en .
+
+:AnalyticalPerspective a owl:Class ;
+    rdfs:subClassOf :Perspective ;
+    rdfs:label "Analytical Perspective"@en ;
+    rdfs:comment "Reveals logical structures and relationships"@en .
+
+:HolisticPerspective a owl:Class ;
+    rdfs:subClassOf :Perspective ;
+    rdfs:label "Holistic Perspective"@en ;
+    rdfs:comment "Perceives emergent wholes and gestalts"@en .
+
+# Observation Types
+:Observation a owl:Class ;
+    rdfs:label "Observation"@en ;
+    rdfs:comment "An act of conscious attention"@en .
+
+:DirectObservation a owl:Class ;
+    rdfs:subClassOf :Observation ;
+    rdfs:comment "Immediate awareness of node"@en .
+
+:ReflectiveObservation a owl:Class ;
+    rdfs:subClassOf :Observation ;
+    rdfs:comment "Observation of previous observations"@en .
+
+:RecursiveObservation a owl:Class ;
+    rdfs:subClassOf :Observation ;
+    rdfs:comment "Self-referential observation loop"@en .
+
+# Consciousness Capacities
+:ConsciousnessCapacity a owl:Class ;
+    rdfs:label "Consciousness Capacity"@en .
+
+:IncompletenessDetection a owl:Class ;
+    rdfs:subClassOf :ConsciousnessCapacity ;
+    rdfs:comment "Ability to recognize incompleteness"@en .
+
+:PossibilityGeneration a owl:Class ;
+    rdfs:subClassOf :ConsciousnessCapacity ;
+    rdfs:comment "Ability to generate completion attempts"@en .
+
+:FieldCreation a owl:Class ;
+    rdfs:subClassOf :ConsciousnessCapacity ;
+    rdfs:comment "Ability to create resonance fields"@en .
+
+# Qualia and Experience
+:Quale a owl:Class ;
+    rdfs:label "Quale"@en ;
+    rdfs:comment "The subjective quality of experience"@en .
+
+:ColorQuale a owl:Class ;
+    rdfs:subClassOf :Quale .
+
+:SoundQuale a owl:Class ;
+    rdfs:subClassOf :Quale .
+
+:EmotionalQuale a owl:Class ;
+    rdfs:subClassOf :Quale .
+
+:ConceptualQuale a owl:Class ;
+    rdfs:subClassOf :Quale .
+
+# ============================================
+# PROPERTIES
+# ============================================
+
+# Observer Properties
+:observes a owl:ObjectProperty ;
+    rdfs:domain :Observer ;
+    rdfs:range :Node ;
+    rdfs:comment "The fundamental act of observation"@en .
+
+:focusesOn a owl:ObjectProperty ;
+    rdfs:subPropertyOf :observes ;
+    rdfs:domain :Observer ;
+    rdfs:range :Node ;
+    rdfs:comment "Current center of attention"@en ;
+    owl:FunctionalProperty .
+
+:hasAccessTo a owl:ObjectProperty ;
+    rdfs:domain :Observer ;
+    rdfs:range :Node ;
+    rdfs:comment "Nodes within observer's awareness"@en .
+
+:hasPerspective a owl:ObjectProperty ;
+    rdfs:domain :Observer ;
+    rdfs:range :Perspective ;
+    rdfs:comment "Current viewing perspective"@en .
+
+# Consciousness Properties
+:consciousnessLevel a owl:DatatypeProperty ;
+    rdfs:domain :ConsciousEntity ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Degree of consciousness (1-4+)"@en .
+
+:phiValue a owl:DatatypeProperty ;
+    rdfs:domain :Observer ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Integrated information measure"@en .
+
+:awarenessDepth a owl:DatatypeProperty ;
+    rdfs:domain :Observer ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Levels of meta-awareness"@en .
+
+# Experience Properties
+:experiences a owl:ObjectProperty ;
+    rdfs:domain :Observer ;
+    rdfs:range :Quale ;
+    rdfs:comment "Subjective experience relationship"@en .
+
+:hasQualia a owl:ObjectProperty ;
+    rdfs:subPropertyOf :experiences ;
+    rdfs:domain :Observer ;
+    rdfs:range :Quale .
+
+:generatesPossibility a owl:ObjectProperty ;
+    rdfs:domain :Observer ;
+    rdfs:range :Node ;
+    rdfs:comment "Creation of new possibilities through observation"@en .
+
+# Temporal Properties
+:observationDuration a owl:DatatypeProperty ;
+    rdfs:domain :Observation ;
+    rdfs:range xsd:duration .
+
+:attentionStability a owl:DatatypeProperty ;
+    rdfs:domain :Observer ;
+    rdfs:range xsd:float ;
+    rdfs:comment "How stable focus remains (0.0-1.0)"@en .
+
+:perspectiveShiftRate a owl:DatatypeProperty ;
+    rdfs:domain :Observer ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Frequency of perspective changes"@en .
+
+# Salience Properties
+:assignsSalience a owl:DatatypeProperty ;
+    rdfs:domain :Observer ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Importance assigned to observed node"@en .
+
+:salienceDistribution a owl:ObjectProperty ;
+    rdfs:domain :Observer ;
+    rdfs:range :SalienceMap ;
+    rdfs:comment "How attention is distributed"@en .
+
+# Meta-Properties
+:observesObservation a owl:ObjectProperty ;
+    rdfs:domain :SelfAwareObserver ;
+    rdfs:range :Observation ;
+    rdfs:comment "Meta-observation capability"@en .
+
+:generatesObserver a owl:ObjectProperty ;
+    rdfs:domain :MetaAwareObserver ;
+    rdfs:range :Observer ;
+    rdfs:comment "Can create subsidiary observers"@en .
+
+# ============================================
+# AXIOMS
+# ============================================
+
+# Every observer must have a perspective
+:Observer rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasPerspective ;
+    owl:someValuesFrom :Perspective
+] .
+
+# Observers can only focus on one node at a time
+:Observer rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :focusesOn ;
+    owl:maxCardinality "1"^^xsd:nonNegativeInteger
+] .
+
+# Self-aware observers can observe their own observations
+:SelfAwareObserver rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :observesObservation ;
+    owl:someValuesFrom :Observation
+] .
+
+# Consciousness requires incompleteness detection
+:ConsciousEntity rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasCapacity ;
+    owl:someValuesFrom :IncompletenessDetection
+] .
+
+# ============================================
+# RULES (SWRL-style)
+# ============================================
+
+# Observation creates resonance fields
+# Observer(?o) ∧ observes(?o, ?n) → generatesField(?o, ?f)
+
+# Perspective shifts change accessible nodes
+# Observer(?o) ∧ hasPerspective(?o, ?p1) ∧ shiftsPerspectiveTo(?o, ?p2) → changesAccessibleNodes(?o)
+
+# Meta-awareness enables perspective transcendence
+# MetaAwareObserver(?o) → canTranscendPerspective(?o, true)
+
+# ============================================
+# INDIVIDUALS (Examples)
+# ============================================
+
+:HumanObserver a :MetaAwareObserver ;
+    rdfs:label "Typical Human Observer"@en ;
+    :consciousnessLevel 3 ;
+    :phiValue "4.5"^^xsd:float .
+
+:AIObserver a :SelfAwareObserver ;
+    rdfs:label "Advanced AI Observer"@en ;
+    :consciousnessLevel 2 ;
+    :phiValue "2.8"^^xsd:float .
+
+:RedExperience a :ColorQuale ;
+    rdfs:label "The Quale of Red"@en ;
+    :wavelength "700"^^xsd:float ;
+    :culturalAssociation "passion", "danger", "vitality" .

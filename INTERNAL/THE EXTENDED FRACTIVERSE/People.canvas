@@ -1,0 +1,25 @@
+{
+	"edges":[],
+	"nodes":[
+		{
+			"file":"The Darkverse/THE EXTENDED FRACTIVERSE/Joe Corvin.md",
+			"height":162,
+			"id":"fcbe6579cf0f6c6a",
+			"styleAttributes":{},
+			"type":"file",
+			"width":287,
+			"x":53,
+			"y":-142
+		},
+		{
+			"file":"The Darkverse/THE EXTENDED FRACTIVERSE/Rob Corvin.md",
+			"height":139,
+			"id":"d866f7c4bc22dbb5",
+			"styleAttributes":{},
+			"type":"file",
+			"width":207,
+			"x":160,
+			"y":-540
+		}
+	]
+}
