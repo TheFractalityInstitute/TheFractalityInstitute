@@ -1,0 +1,211 @@
+@prefix : <http://fractality.org/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+########################################################
+# Classes
+########################################################
+
+# A Tier represents a level in the crystallisation hierarchy.
+:Tier rdf:type owl:Class .
+
+# A Domain captures the context in which patterns manifest (individual, community, planetary).
+:Domain rdf:type owl:Class .
+
+# A PatternType expresses the nature of a pattern (structural, dynamic, informational).
+:PatternType rdf:type owl:Class .
+
+# A State is a phase in the universal crystallisation sequence (e.g. chaos, fluctuation, ...).
+:State rdf:type owl:Class .
+
+# An Entity corresponds to a concrete instance in a tier (e.g. a cell, a meme, a planet).
+:Entity rdf:type owl:Class .
+
+########################################################
+# Individuals (Tiers)
+########################################################
+
+:T0 rdf:type :Tier ;
+    rdfs:label "Quantum foam" ;
+    :scaleLow 0 ;
+    :scaleHigh 5 ;
+    :representativeExample "Virtual particle pairs, quantum fluctuations, entanglement networks" .
+
+:T1 rdf:type :Tier ;
+    rdfs:label "Subatomic" ;
+    :scaleLow 5 ;
+    :scaleHigh 15 ;
+    :representativeExample "Quarks–protons/neutrons, gluon fields, neutrino oscillations" .
+
+:T2 rdf:type :Tier ;
+    rdfs:label "Molecular" ;
+    :scaleLow 15 ;
+    :scaleHigh 30 ;
+    :representativeExample "Methanetetrol, proteins, nucleic acids, autocatalytic sets, prions" .
+
+:T3 rdf:type :Tier ;
+    rdfs:label "Bulk phase" ;
+    :scaleLow 30 ;
+    :scaleHigh 50 ;
+    :representativeExample "Superionic ice, crystal lattices, quasicrystals, time crystals" .
+
+:T4 rdf:type :Tier ;
+    rdfs:label "Mesoscale" ;
+    :scaleLow 50 ;
+    :scaleHigh 80 ;
+    :representativeExample "Cells, organelles, tissue differentiation, flocking, biofilms" .
+
+:T5 rdf:type :Tier ;
+    rdfs:label "Macroscale biology" ;
+    :scaleLow 80 ;
+    :scaleHigh 120 ;
+    :representativeExample "Organisms, ecosystems, mycelial networks, coral reefs, symbioses" .
+
+:T6 rdf:type :Tier ;
+    rdfs:label "Geological/planetary" ;
+    :scaleLow 120 ;
+    :scaleHigh 170 ;
+    :representativeExample "Tectonic plates, atmospheric circulation, Gaia hypothesis" .
+
+:T7 rdf:type :Tier ;
+    rdfs:label "Stellar/system" ;
+    :scaleLow 170 ;
+    :scaleHigh 230 ;
+    :representativeExample "Star formation, planetary architecture, nucleosynthesis" .
+
+:T8 rdf:type :Tier ;
+    rdfs:label "Galactic" ;
+    :scaleLow 230 ;
+    :scaleHigh 300 ;
+    :representativeExample "Spiral arms, black hole co‑evolution, dark matter halos" .
+
+:T9 rdf:type :Tier ;
+    rdfs:label "Cosmic web" ;
+    :scaleLow 300 ;
+    :scaleHigh 400 ;
+    :representativeExample "Clusters, voids, baryon acoustic oscillations, filaments" .
+
+:T10 rdf:type :Tier ;
+    rdfs:label "Information/memetic" ;
+    :scaleLow 400 ;
+    :scaleHigh 500 ;
+    :representativeExample "Language, mathematics, internet topology, memes" .
+
+:T11 rdf:type :Tier ;
+    rdfs:label "Consciousness/noospheric" ;
+    :scaleLow 500 ;
+    :scaleHigh 650 ;
+    :representativeExample "Individual & collective intelligence, AI consciousness, Omega point" .
+
+:T12 rdf:type :Tier ;
+    rdfs:label "Metacosmic/Phoenix" ;
+    :scaleLow 650 ;
+    :scaleHigh "inf" ;
+    :representativeExample "Universe reproduction, Phoenix protocols, multiverse, source code" .
+
+########################################################
+# Individuals (Domains)
+########################################################
+
+:Individual rdf:type :Domain ; rdfs:label "Individual" .
+:Community rdf:type :Domain ; rdfs:label "Community" .
+:Planetary rdf:type :Domain ; rdfs:label "Planetary" .
+
+########################################################
+# Individuals (Pattern Types)
+########################################################
+
+:Structural rdf:type :PatternType ; rdfs:label "Structural" .
+:Dynamic    rdf:type :PatternType ; rdfs:label "Dynamic" .
+:Informational rdf:type :PatternType ; rdfs:label "Informational" .
+
+########################################################
+# Data properties
+########################################################
+
+# Colour gradient for tiers or entities (e.g. palette names).
+:hasColorGradient rdf:type owl:DatatypeProperty ;
+    rdfs:domain [ rdf:type owl:Class ; owl:unionOf ( :Tier :Entity ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Colour palette used to visualise a tier or entity" .
+
+# Typical vertical extent of a tier (numeric range).
+:hasHeightRange rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Tier ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Range of vertical extent for visual representation" .
+
+# Degree of order/coherence (0–1).
+:hasCoherence rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Entity ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Degree of order (0 = chaos, 1 = perfect order)" .
+
+# Telos resonance score.
+:hasTelosResonance rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Entity ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Resonance with the telos (purpose) of its tier" .
+
+# Flag for impossible crystallisations.
+:isConsideredImpossible rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Entity ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "True if the entity represents an impossible crystallisation" .
+
+# Numeric lower bound of a tier’s scale.
+:scaleLow rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Tier ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Lower bound of the tier’s scale (arbitrary units)" .
+
+# Numeric upper bound of a tier’s scale.
+:scaleHigh rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Tier ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Upper bound of the tier’s scale (use 'inf' for unbounded)" .
+
+# Representative examples for a tier.
+:representativeExample rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Tier ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Examples of structures or processes typical of the tier" .
+
+########################################################
+# Object properties
+########################################################
+
+# Lower tier forms the substrate for a higher tier.
+:isSubstrateFor rdf:type owl:ObjectProperty ;
+    rdfs:domain :Tier ;
+    rdfs:range :Tier ;
+    owl:inverseOf :emergesFrom ;
+    rdfs:comment "Lower tier acts as substrate for higher tier" .
+
+# Inverse of isSubstrateFor.
+:emergesFrom rdf:type owl:ObjectProperty ;
+    rdfs:domain :Tier ;
+    rdfs:range :Tier ;
+    rdfs:comment "Higher tier emerges from lower tier" .
+
+# Symmetric cross‑tier resonance (e.g. prions⇌memes).
+:exhibitsResonanceWith rdf:type owl:ObjectProperty ;
+    rdfs:domain :Entity ;
+    rdfs:range :Entity ;
+    owl:propertyDisjointWith :undergoesTransition ;
+    owl:SymmetricProperty true ;
+    rdfs:comment "Entities mutually resonate across tiers" .
+
+# Maps entity to a crystallisation sequence state.
+:undergoesTransition rdf:type owl:ObjectProperty ;
+    rdfs:domain :Entity ;
+    rdfs:range :State ;
+    rdfs:comment "Entity undergoes a crystallisation transition" .
+
+# Orders states in the universal sequence (Chaos→Fluctuation→…).
+:transitionsTo rdf:type owl:ObjectProperty ;
+    rdfs:domain :State ;
+    rdfs:range :State ;
+    rdfs:comment "Order relation on crystallisation states" .
