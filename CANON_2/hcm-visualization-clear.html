@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Hybrid Crystallization Map - Mobile</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: #000;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            color: white;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            pointer-events: none;
+        }
+        #info h3 {
+            margin: 0 0 5px 0;
+            color: #88ccff;
+            font-size: 16px;
+        }
+        .tier-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        .tier-item {
+            font-size: 11px;
+        }
+        .tier-label {
+            color: #ffaa00;
+            font-weight: bold;
+        }
+        #controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            color: white;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            text-align: center;
+            pointer-events: none;
+        }
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 18px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">Loading...</div>
+    <div id="info" style="display: none;">
+        <h3>Hybrid Crystallization Map</h3>
+        <div class="tier-grid">
+            <div class="tier-item"><span class="tier-label">T0:</span> Quantum</div>
+            <div class="tier-item"><span class="tier-label">T1:</span> Subatomic</div>
+            <div class="tier-item"><span class="tier-label">T2:</span> Molecular</div>
+            <div class="tier-item"><span class="tier-label">T3:</span> Bulk Phase</div>
+            <div class="tier-item"><span class="tier-label">T4:</span> Mesoscale</div>
+            <div class="tier-item"><span class="tier-label">T5:</span> Biology</div>
+            <div class="tier-item"><span class="tier-label">T6:</span> Geological</div>
+            <div class="tier-item"><span class="tier-label">T7:</span> Stellar</div>
+            <div class="tier-item"><span class="tier-label">T8:</span> Galactic</div>
+            <div class="tier-item"><span class="tier-label">T9:</span> Cosmic</div>
+        </div>
+    </div>
+    <div id="controls" style="display: none;">
+        Touch & Drag: Rotate | Pinch: Zoom
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Mobile-optimized settings
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const quality = isMobile ? 'low' : 'high';
+        
+        // Scene setup with mobile optimizations
+        const scene = new THREE.Scene();
+        // Set a solid black background.  Using scene.background avoids
+        // the coloured artefacts that can appear when the framebuffer
+        // is not cleared properly on some devices.
+        scene.background = new THREE.Color(0x000000);
+        // Remove fog for a clearer view of the entire structure.  When
+        // fog is disabled the full vertical extent of the tiers and
+        // structures is visible regardless of camera distance.
+        scene.fog = null;
+        
+        const camera = new THREE.PerspectiveCamera(
+            60, 
+            window.innerWidth / window.innerHeight, 
+            0.1, 
+            500
+        );
+        camera.position.set(40, 100, 80);
+        camera.lookAt(0, 80, 0);
+        
+        const renderer = new THREE.WebGLRenderer({ 
+            antialias: !isMobile,
+            alpha: false,
+            powerPreference: "high-performance"
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.body.appendChild(renderer.domElement);
+        
+        // Simple lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 1.2);
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(50, 100, 50);
+        scene.add(directionalLight);
+        
+        // Extended tier structure
+        const tiers = [
+            // Use a uniform neutral grey for all tiers to make the
+            // underlying geometry stand out.  Colour coding can be
+            // reintroduced later if desired.
+            { height: 0, radius: 40, color: 0x444444 },    // T0: Quantum
+            { height: 10, radius: 38, color: 0x444444 },   // T1: Subatomic
+            { height: 25, radius: 36, color: 0x444444 },   // T2: Molecular
+            { height: 40, radius: 34, color: 0x444444 },   // T3: Bulk Phase
+            { height: 60, radius: 32, color: 0x444444 },   // T4: Mesoscale
+            { height: 80, radius: 30, color: 0x444444 },   // T5: Macroscale
+            { height: 105, radius: 28, color: 0x444444 },  // T6: Geological
+            { height: 130, radius: 26, color: 0x444444 },  // T7: Stellar
+            { height: 160, radius: 24, color: 0x444444 },  // T8: Galactic
+            { height: 190, radius: 22, color: 0x444444 }   // T9: Cosmic Web
+        ];
+        
+        // Create extended tier platforms
+        const tierGroup = new THREE.Group();
+        tiers.forEach((tier, index) => {
+            // Platform
+            const geometry = new THREE.CylinderGeometry(
+                tier.radius, 
+                tier.radius, 
+                1.5, 
+                quality === 'low' ? 16 : 32, 
+                1, 
+                true
+            );
+            const material = new THREE.MeshLambertMaterial({
+                color: tier.color,
+                transparent: true,
+                // Make tier platforms more transparent so that stacked layers remain visible
+                opacity: 0.05,
+                side: THREE.DoubleSide
+            });
+            const cylinder = new THREE.Mesh(geometry, material);
+            cylinder.position.y = tier.height;
+            tierGroup.add(cylinder);
+            
+            // Glowing ring (simplified)
+            const ringGeometry = new THREE.TorusGeometry(
+                tier.radius,
+                0.4,
+                quality === 'low' ? 4 : 8,
+                quality === 'low' ? 16 : 32
+            );
+            // Make rings semi‑transparent so they do not obscure the view of underlying tiers.
+            const ringMaterial = new THREE.MeshBasicMaterial({
+                color: tier.color,
+                transparent: true,
+                // Lower opacity to reduce visual clutter when viewing multiple rings
+                opacity: 0.05
+            });
+            const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+            ring.position.y = tier.height;
+            ring.rotation.x = Math.PI / 2;
+            tierGroup.add(ring);
+        });
+        scene.add(tierGroup);
+        
+        // Simplified methanetetrol (just spheres, no complex geometry)
+        const methanetetrolGroup = new THREE.Group();
+        
+        // Central carbon
+        const carbonGeometry = new THREE.SphereGeometry(1, 8, 8);
+        const carbonMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+        const carbon = new THREE.Mesh(carbonGeometry, carbonMaterial);
+        methanetetrolGroup.add(carbon);
+        
+        // OH groups (simplified)
+        const ohGeometry = new THREE.SphereGeometry(0.7, 6, 6);
+        const ohMaterial = new THREE.MeshLambertMaterial({ color: 0xff4444 });
+        for (let i = 0; i < 4; i++) {
+            const angle = (i / 4) * Math.PI * 2;
+            const oh = new THREE.Mesh(ohGeometry, ohMaterial);
+            oh.position.set(
+                Math.cos(angle) * 3,
+                0,
+                Math.sin(angle) * 3
+            );
+            methanetetrolGroup.add(oh);
+        }
+        
+        methanetetrolGroup.position.set(12, 25, 0);
+        scene.add(methanetetrolGroup);
+        
+        // Simplified superionic ice
+        const superionicGroup = new THREE.Group();
+        
+        // Simple lattice representation
+        const latticeGeometry = new THREE.BoxGeometry(15, 5, 15);
+        const latticeMaterial = new THREE.MeshLambertMaterial({
+            color: 0xff0000,
+            transparent: true,
+            opacity: 0.3,
+            wireframe: true
+        });
+        const lattice = new THREE.Mesh(latticeGeometry, latticeMaterial);
+        superionicGroup.add(lattice);
+        
+        // Flowing particles (fewer for mobile)
+        const ionCount = isMobile ? 20 : 50;
+        const ionGeometry = new THREE.BufferGeometry();
+        const ionPositions = new Float32Array(ionCount * 3);
+        
+        for (let i = 0; i < ionCount; i++) {
+            ionPositions[i * 3] = (Math.random() - 0.5) * 10;
+            ionPositions[i * 3 + 1] = (Math.random() - 0.5) * 3;
+            ionPositions[i * 3 + 2] = (Math.random() - 0.5) * 10;
+        }
+        
+        ionGeometry.setAttribute('position', new THREE.BufferAttribute(ionPositions, 3));
+        const ionMaterial = new THREE.PointsMaterial({
+            color: 0x00ffff,
+            size: 2,
+            sizeAttenuation: false
+        });
+        const ions = new THREE.Points(ionGeometry, ionMaterial);
+        superionicGroup.add(ions);
+        
+        // Add quasicrystal at Tier 3 (Bulk Phase)
+        const quasicrystalGroup = new THREE.Group();
+        
+        // Pentagon-based structure (5-fold symmetry)
+        const pentagonGeometry = new THREE.CylinderGeometry(3, 3, 0.5, 5);
+        const pentagonMaterial = new THREE.MeshLambertMaterial({
+            color: 0xffd700,
+            transparent: true,
+            opacity: 0.7
+        });
+        
+        // Create Penrose-like pattern
+        for (let i = 0; i < 5; i++) {
+            const angle = (i / 5) * Math.PI * 2;
+            const pentagon = new THREE.Mesh(pentagonGeometry, pentagonMaterial);
+            pentagon.position.set(Math.cos(angle) * 5, 0, Math.sin(angle) * 5);
+            pentagon.rotation.y = angle;
+            quasicrystalGroup.add(pentagon);
+        }
+        
+        quasicrystalGroup.position.set(0, 40, 15);
+        quasicrystalGroup.scale.set(0.8, 0.8, 0.8);
+        scene.add(quasicrystalGroup);
+        
+        // Add galaxy spiral at Tier 8
+        const galaxyGroup = new THREE.Group();
+        
+        // Spiral arms
+        const spiralGeometry = new THREE.BufferGeometry();
+        const spiralPoints = [];
+        for (let t = 0; t < Math.PI * 4; t += 0.1) {
+            const r = t * 2;
+            spiralPoints.push(new THREE.Vector3(
+                Math.cos(t) * r,
+                0,
+                Math.sin(t) * r
+            ));
+        }
+        spiralGeometry.setFromPoints(spiralPoints);
+        
+        const spiralMaterial = new THREE.LineBasicMaterial({
+            color: 0xff00ff,
+            transparent: true,
+            opacity: 0.8
+        });
+        
+        const spiral1 = new THREE.Line(spiralGeometry, spiralMaterial);
+        const spiral2 = new THREE.Line(spiralGeometry, spiralMaterial);
+        spiral2.rotation.y = Math.PI;
+        
+        galaxyGroup.add(spiral1);
+        galaxyGroup.add(spiral2);
+        
+        // Central black hole
+        const blackHoleGeometry = new THREE.SphereGeometry(1, 8, 8);
+        const blackHoleMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const blackHole = new THREE.Mesh(blackHoleGeometry, blackHoleMaterial);
+        galaxyGroup.add(blackHole);
+        
+        galaxyGroup.position.set(-10, 160, -10);
+        galaxyGroup.scale.set(0.5, 0.5, 0.5);
+        scene.add(galaxyGroup);
+        
+        // Add neural network at Tier 5 (Mesoscale)
+        const neuralGroup = new THREE.Group();
+        
+        // Neurons
+        const neuronGeometry = new THREE.SphereGeometry(0.5, 6, 6);
+        const neuronMaterial = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
+        const neurons = [];
+        
+        for (let i = 0; i < 7; i++) {
+            const neuron = new THREE.Mesh(neuronGeometry, neuronMaterial);
+            const angle = (i / 7) * Math.PI * 2;
+            const radius = i === 0 ? 0 : 4;
+            neuron.position.set(
+                Math.cos(angle) * radius,
+                (Math.random() - 0.5) * 2,
+                Math.sin(angle) * radius
+            );
+            neurons.push(neuron);
+            neuralGroup.add(neuron);
+        }
+        
+        // Synaptic connections
+        const connectionMaterial = new THREE.LineBasicMaterial({
+            color: 0x00ff00,
+            transparent: true,
+            opacity: 0.4
+        });
+        
+        neurons.forEach((neuron1, i) => {
+            neurons.forEach((neuron2, j) => {
+                if (i < j && Math.random() > 0.5) {
+                    const points = [neuron1.position, neuron2.position];
+                    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                    const connection = new THREE.Line(geometry, connectionMaterial);
+                    neuralGroup.add(connection);
+                }
+            });
+        });
+        
+        neuralGroup.position.set(10, 80, -10);
+        scene.add(neuralGroup);
+        
+        // Add Turing pattern at Tier 4 (Mesoscale)
+        const turingGroup = new THREE.Group();
+        
+        // Create spotted pattern
+        const spotCount = 12;
+        const spotGeometry = new THREE.SphereGeometry(0.6, 6, 6);
+        
+        for (let i = 0; i < spotCount; i++) {
+            const angle = (i / spotCount) * Math.PI * 2;
+            const radius = 3 + Math.sin(i * 2.3) * 1.5;
+            
+            const spotMaterial = new THREE.MeshLambertMaterial({
+                color: i % 2 === 0 ? 0xff6600 : 0x0066ff,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            const spot = new THREE.Mesh(spotGeometry, spotMaterial);
+            spot.position.set(
+                Math.cos(angle) * radius,
+                Math.sin(i * 1.7) * 0.5,
+                Math.sin(angle) * radius
+            );
+            turingGroup.add(spot);
+        }
+        
+        turingGroup.position.set(-8, 60, 12);
+        scene.add(turingGroup);
+        
+        // Add cosmic web structure at Tier 9
+        const cosmicWebGroup = new THREE.Group();
+        
+        // Create interconnected nodes representing galaxy clusters
+        const nodeGeometry = new THREE.SphereGeometry(0.4, 6, 6);
+        const nodeMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.9 
+        });
+        
+        const nodes = [];
+        const nodeCount = 8;
+        
+        for (let i = 0; i < nodeCount; i++) {
+            const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
+            const phi = Math.acos(1 - 2 * i / nodeCount);
+            const theta = Math.sqrt(nodeCount * Math.PI) * phi;
+            
+            node.position.set(
+                Math.cos(theta) * Math.sin(phi) * 8,
+                Math.cos(phi) * 4,
+                Math.sin(theta) * Math.sin(phi) * 8
+            );
+            nodes.push(node);
+            cosmicWebGroup.add(node);
+        }
+        
+        // Create filaments between nodes
+        const filamentMaterial = new THREE.LineBasicMaterial({
+            color: 0x8888ff,
+            transparent: true,
+            opacity: 0.3,
+            linewidth: 1
+        });
+        
+        nodes.forEach((node1, i) => {
+            nodes.forEach((node2, j) => {
+                if (i < j) {
+                    const distance = node1.position.distanceTo(node2.position);
+                    if (distance < 10) {
+                        const points = [node1.position, node2.position];
+                        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                        const filament = new THREE.Line(geometry, filamentMaterial);
+                        cosmicWebGroup.add(filament);
+                    }
+                }
+            });
+        });
+        
+        cosmicWebGroup.position.set(0, 190, 0);
+        scene.add(cosmicWebGroup);
+        
+        const label7 = createTextSprite('Cosmic Web', '#8888ff');
+        label7.position.set(0, 197, 0);
+        scene.add(label7);
+        
+        // Simple text labels using sprites
+        function createTextSprite(text, color) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = 128;
+            canvas.height = 32;
+            
+            context.fillStyle = color;
+            context.font = 'bold 20px Arial';
+            context.textAlign = 'center';
+            context.fillText(text, 64, 24);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({ 
+                map: texture,
+                sizeAttenuation: false
+            });
+            const sprite = new THREE.Sprite(material);
+            sprite.scale.set(20, 5, 1);
+            return sprite;
+        }
+        
+        const label1 = createTextSprite('Methanetetrol', '#44ff88');
+        label1.position.set(12, 32, 0);
+        scene.add(label1);
+        
+        const label2 = createTextSprite('Superionic Ice', '#ffaa44');
+        label2.position.set(-12, 47, 0);
+        scene.add(label2);
+        
+        const label3 = createTextSprite('Quasicrystal', '#ffd700');
+        label3.position.set(0, 47, 15);
+        scene.add(label3);
+        
+        const label4 = createTextSprite('Neural Net', '#00ff00');
+        label4.position.set(10, 87, -10);
+        scene.add(label4);
+        
+        const label5 = createTextSprite('Galaxy', '#ff00ff');
+        label5.position.set(-10, 167, -10);
+        scene.add(label5);
+        
+        const label6 = createTextSprite('Turing Pattern', '#ff6600');
+        label6.position.set(-8, 65, 12);
+        scene.add(label6);
+        
+        // Flowing particles between tiers (fewer for mobile)
+        const flowParticleCount = isMobile ? 50 : 100;
+        const flowGeometry = new THREE.BufferGeometry();
+        const flowPositions = new Float32Array(flowParticleCount * 3);
+        const flowColors = new Float32Array(flowParticleCount * 3);
+        const flowVelocities = [];
+        
+        for (let i = 0; i < flowParticleCount; i++) {
+            const tierIndex = Math.floor(Math.random() * tiers.length);
+            const angle = Math.random() * Math.PI * 2;
+            const radius = tiers[tierIndex].radius * (0.3 + Math.random() * 0.7);
+            
+            flowPositions[i * 3] = Math.cos(angle) * radius;
+            flowPositions[i * 3 + 1] = tiers[tierIndex].height + (Math.random() - 0.5) * 5;
+            flowPositions[i * 3 + 2] = Math.sin(angle) * radius;
+            
+            flowVelocities.push({
+                y: Math.random() * 0.8 + 0.2,
+                angle: angle,
+                radius: radius,
+                tierIndex: tierIndex
+            });
+            
+            const color = new THREE.Color(tiers[tierIndex].color);
+            flowColors[i * 3] = color.r;
+            flowColors[i * 3 + 1] = color.g;
+            flowColors[i * 3 + 2] = color.b;
+        }
+        
+        flowGeometry.setAttribute('position', new THREE.BufferAttribute(flowPositions, 3));
+        flowGeometry.setAttribute('color', new THREE.BufferAttribute(flowColors, 3));
+        
+        const flowMaterial = new THREE.PointsMaterial({
+            size: 1.5,
+            // Disable per‑vertex colouring so that all flow particles
+            // share the same neutral colour.  This helps remove the
+            // multicoloured gradient effect seen in the previous
+            // version.
+            vertexColors: false,
+            color: 0x888888,
+            transparent: true,
+            opacity: 0.2,
+            blending: THREE.NormalBlending,
+            sizeAttenuation: !isMobile
+        });
+        
+        const flowParticles = new THREE.Points(flowGeometry, flowMaterial);
+        scene.add(flowParticles);
+        
+        // Touch controls
+        let touchStartX = 0, touchStartY = 0;
+        let cameraAngleX = 0, cameraAngleY = 0;
+        let pinchDistance = 0;
+        let zoom = 1;
+        // Vertical target the camera will orbit around.  It starts at the middle of the tiers
+        // and can be adjusted with vertical drag to explore upper and lower tiers.
+        let targetY = 80;
+        // Clamp the target to avoid looking above or below the entire structure
+        const minTargetY = 0;
+        const maxTargetY = 200;
+        
+        function handleTouchStart(e) {
+            if (e.touches.length === 1) {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            } else if (e.touches.length === 2) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                pinchDistance = Math.sqrt(dx * dx + dy * dy);
+            }
+        }
+        
+        function handleTouchMove(e) {
+            e.preventDefault();
+            
+            if (e.touches.length === 1) {
+            const deltaX = e.touches[0].clientX - touchStartX;
+            const deltaY = e.touches[0].clientY - touchStartY;
+
+            // Horizontal drag rotates around the vertical axis
+            cameraAngleY += deltaX * 0.01;
+            // Vertical drag tilts the camera and also moves the orbit target up/down
+            cameraAngleX -= deltaY * 0.01;
+            cameraAngleX = Math.max(-Math.PI / 4, Math.min(Math.PI / 4, cameraAngleX));
+            // Adjust the vertical orbit point – small multiplier keeps movement smooth
+            targetY -= deltaY * 0.5;
+            // Clamp targetY to the allowed range
+            targetY = Math.max(minTargetY, Math.min(maxTargetY, targetY));
+
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            } else if (e.touches.length === 2) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                zoom *= distance / pinchDistance;
+                zoom = Math.max(0.5, Math.min(2, zoom));
+                
+                pinchDistance = distance;
+            }
+        }
+        
+        renderer.domElement.addEventListener('touchstart', handleTouchStart, { passive: false });
+        renderer.domElement.addEventListener('touchmove', handleTouchMove, { passive: false });
+        
+        // Mouse fallback for desktop
+        let mouseDown = false;
+        renderer.domElement.addEventListener('mousedown', (e) => {
+            mouseDown = true;
+            touchStartX = e.clientX;
+            touchStartY = e.clientY;
+        });
+        
+        renderer.domElement.addEventListener('mousemove', (e) => {
+            if (!mouseDown) return;
+            const deltaX = e.clientX - touchStartX;
+            const deltaY = e.clientY - touchStartY;
+
+            // Horizontal drag rotates around the vertical axis
+            cameraAngleY += deltaX * 0.01;
+            // Vertical drag tilts the camera and pans the orbit up/down
+            cameraAngleX -= deltaY * 0.01;
+            cameraAngleX = Math.max(-Math.PI / 4, Math.min(Math.PI / 4, cameraAngleX));
+            targetY -= deltaY * 0.5;
+            targetY = Math.max(minTargetY, Math.min(maxTargetY, targetY));
+
+            touchStartX = e.clientX;
+            touchStartY = e.clientY;
+        });
+        
+        renderer.domElement.addEventListener('mouseup', () => {
+            mouseDown = false;
+        });
+        
+        renderer.domElement.addEventListener('wheel', (e) => {
+            zoom += e.deltaY * -0.001;
+            zoom = Math.max(0.5, Math.min(2, zoom));
+            e.preventDefault();
+        });
+        
+        // Hide loading, show UI
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('info').style.display = 'block';
+        document.getElementById('controls').style.display = 'block';
+        
+        // Animation loop
+        let time = 0;
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.01;
+            
+            // Add some visual connections between structures
+            const connectionTime = time * 0.5;
+            const pulseIntensity = (Math.sin(connectionTime) + 1) * 0.5;
+            
+            // Rotate methanetetrol
+            methanetetrolGroup.rotation.y += 0.01;
+            
+            // Rotate quasicrystal showing 5-fold symmetry
+            quasicrystalGroup.rotation.y += 0.008;
+            quasicrystalGroup.rotation.x = Math.sin(time * 0.5) * 0.1;
+            
+            // Rotate galaxy
+            galaxyGroup.rotation.y += 0.003;
+            
+            // Pulse neural network
+            neuralGroup.scale.setScalar(0.9 + Math.sin(time * 2) * 0.1);
+            
+            // Animate Turing pattern (reaction-diffusion waves)
+            turingGroup.children.forEach((spot, i) => {
+                const wave = Math.sin(time + i * 0.5) * 0.5;
+                spot.position.y = Math.sin(i * 1.7) * 0.5 + wave;
+                spot.scale.setScalar(1 + Math.sin(time * 2 + i) * 0.2);
+            });
+            
+            // Slowly rotate cosmic web
+            cosmicWebGroup.rotation.y += 0.002;
+            cosmicWebGroup.rotation.x = Math.sin(time * 0.3) * 0.05;
+            
+            // Update flowing particles
+            const flowPositions = flowParticles.geometry.attributes.position.array;
+            for (let i = 0; i < flowParticleCount; i++) {
+                flowPositions[i * 3 + 1] += flowVelocities[i].y;
+                
+                // Reset particle when it reaches top
+                if (flowPositions[i * 3 + 1] > 200) {
+                    const tierIndex = Math.floor(Math.random() * tiers.length);
+                    const angle = Math.random() * Math.PI * 2;
+                    const radius = tiers[tierIndex].radius * (0.3 + Math.random() * 0.7);
+                    
+                    flowPositions[i * 3] = Math.cos(angle) * radius;
+                    flowPositions[i * 3 + 1] = tiers[tierIndex].height - 5;
+                    flowPositions[i * 3 + 2] = Math.sin(angle) * radius;
+                    
+                    flowVelocities[i].tierIndex = tierIndex;
+                    
+                    const color = new THREE.Color(tiers[tierIndex].color);
+                    flowParticles.geometry.attributes.color.array[i * 3] = color.r;
+                    flowParticles.geometry.attributes.color.array[i * 3 + 1] = color.g;
+                    flowParticles.geometry.attributes.color.array[i * 3 + 2] = color.b;
+                }
+            }
+            flowParticles.geometry.attributes.position.needsUpdate = true;
+            flowParticles.geometry.attributes.color.needsUpdate = true;
+            
+            // Animate superionic ice particles
+            const ionPositions = superionicGroup.children[1].geometry.attributes.position.array;
+            for (let i = 0; i < ionCount; i++) {
+                ionPositions[i * 3 + 1] = Math.sin(time + i) * 1.5;
+            }
+            superionicGroup.children[1].geometry.attributes.position.needsUpdate = true;
+            
+            // Update camera position
+            const radius = 120 * zoom;
+            camera.position.x = Math.sin(cameraAngleY) * Math.cos(cameraAngleX) * radius;
+            // Orbit around the adjustable targetY so that users can move up/down the map
+            camera.position.y = targetY + Math.sin(cameraAngleX) * radius;
+            camera.position.z = Math.cos(cameraAngleY) * Math.cos(cameraAngleX) * radius;
+            camera.lookAt(0, targetY, 0);
+            
+            // Simple tier rotation for visual interest
+            tierGroup.rotation.y = Math.sin(time * 0.1) * 0.05;
+            
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+        
+        // Handle orientation change and resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
