@@ -12,14 +12,6 @@ This organization houses the complete body of our work, from foundational scient
 
 ---
 
-## The Riemann Resonance Project: Our Flagship Initiative
-
-We're currently launching the world's largest citizen science experiment to test whether human consciousness resonates with the fundamental frequencies of mathematics—specifically, the Riemann zeros. Using consumer EEG devices and collaborative science, anyone can contribute to this groundbreaking research.
-
-**[Join the Experiment](https://riemann.fractality.institute)** | **[Quick Start Guide](QUICKSTART.md)** | **[View Live Data](https://riemann.fractality.institute/stats)**
-
----
-
 ## The Four Canons of the Institute
 
 To maintain intellectual honesty and clarity, our work is stratified into four distinct but interconnected Canons. Each Canon represents a different domain of knowledge and is governed by its own principles.
